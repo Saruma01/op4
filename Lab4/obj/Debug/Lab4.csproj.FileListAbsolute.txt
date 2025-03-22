@@ -1,0 +1,20 @@
+C:\Users\User\Desktop\Уник\ООП\Lab4\bin\Debug\Lab4.exe.config
+C:\Users\User\Desktop\Уник\ООП\Lab4\bin\Debug\Lab4.exe
+C:\Users\User\Desktop\Уник\ООП\Lab4\bin\Debug\Lab4.pdb
+C:\Users\User\Desktop\Уник\ООП\Lab4\obj\Debug\Lab4.csproj.AssemblyReference.cache
+C:\Users\User\Desktop\Уник\ООП\Lab4\obj\Debug\Lab4.Form1.resources
+C:\Users\User\Desktop\Уник\ООП\Lab4\obj\Debug\Lab4.Properties.Resources.resources
+C:\Users\User\Desktop\Уник\ООП\Lab4\obj\Debug\Lab4.csproj.GenerateResource.cache
+C:\Users\User\Desktop\Уник\ООП\Lab4\obj\Debug\Lab4.csproj.CoreCompileInputs.cache
+C:\Users\User\Desktop\Уник\ООП\Lab4\obj\Debug\Lab4.exe
+C:\Users\User\Desktop\Уник\ООП\Lab4\obj\Debug\Lab4.pdb
+C:\Users\Admin\Documents\OOP1\Lab4 (2)\Lab4\bin\Debug\Lab4.exe.config
+C:\Users\Admin\Documents\OOP1\Lab4 (2)\Lab4\bin\Debug\Lab4.exe
+C:\Users\Admin\Documents\OOP1\Lab4 (2)\Lab4\bin\Debug\Lab4.pdb
+C:\Users\Admin\Documents\OOP1\Lab4 (2)\Lab4\obj\Debug\Lab4.csproj.AssemblyReference.cache
+C:\Users\Admin\Documents\OOP1\Lab4 (2)\Lab4\obj\Debug\Lab4.Form1.resources
+C:\Users\Admin\Documents\OOP1\Lab4 (2)\Lab4\obj\Debug\Lab4.Properties.Resources.resources
+C:\Users\Admin\Documents\OOP1\Lab4 (2)\Lab4\obj\Debug\Lab4.csproj.GenerateResource.cache
+C:\Users\Admin\Documents\OOP1\Lab4 (2)\Lab4\obj\Debug\Lab4.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Documents\OOP1\Lab4 (2)\Lab4\obj\Debug\Lab4.exe
+C:\Users\Admin\Documents\OOP1\Lab4 (2)\Lab4\obj\Debug\Lab4.pdb
