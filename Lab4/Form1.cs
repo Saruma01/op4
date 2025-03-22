@@ -184,49 +184,56 @@ namespace Lab4
                         clickedShape.IsSelected = true;
                         _selectedShape = clickedShape;
                     }
+
+                    _selectedShape = clickedShape;
+                    _isDragging = true;
                 }
                 // Если щелкнули не по фигуре
                 else
                 {
-                    // Добавляем новую фигуру в коллекцию
-                    CreateShape(e.Location);
-                    Shape newShape = _shapeContainer.FindShape(e.Location); //get only just added shape
-
-                    if (!_ctrlKeyPressed)
+                    if (_ctrlKeyPressed)
                     {
-                        ClearSelectedShapes();
-                        newShape.IsSelected = true;
-                        _selectedShapes.Add(newShape); //select the new one
-
+                        // Do nothing if clicking on empty space while Ctrl is pressed
+                        // The user might be just adding/removing selection
+                        _isDragging = false; // Disable dragging if starting from empty space with Ctrl
                     }
-                    _selectedShape = newShape;
+                    else
+                    {
+                        // Clear selection and create new shape if clicking on empty space without Ctrl
+                        ClearSelectedShapes();
+                        CreateShape(e.Location);
+                        Shape newShape = _shapeContainer.FindShape(e.Location); // Get only just added shape
+                        _selectedShape = newShape;
+                        _selectedShapes.Add(_selectedShape);
+                        if (_selectedShape != null)
+                            _selectedShape.IsSelected = true;
+                        _isDragging = true;
+                    }
+
+
                 }
-                _isDragging = !_ctrlKeyPressed && _selectedShapes.Contains(clickedShape);
-                Invalidate(); // Перерисовываем pictureBox1
+                Invalidate(); // Перерисовываем
             }
+            _mouseDownLocation = e.Location;
         }
+
 
         private void Form1_MouseMove(object sender, MouseEventArgs e)
         {
             //Перетаскивание только выделенных фигур
-
-            if (_isDragging)
+            if (_isDragging && _selectedShape != null)
             {
-                // Вычисляем смещение мыши
+                //Вычисляем смещение мыши
                 int dx = e.X - _mouseDownLocation.X;
                 int dy = e.Y - _mouseDownLocation.Y;
 
-
+                // Перебираем все выделенные объекты и двигаем их
                 foreach (Shape shape in _selectedShapes)
                 {
                     shape.Move(dx, dy, ClientRectangle);
                 }
 
-
-                // Обновляем координаты мыши
-                _mouseDownLocation = e.Location;
-
-                // Перерисовываем рабочую область
+                _mouseDownLocation = e.Location;  // Обновляем координаты мыши
                 Invalidate();
             }
         }
