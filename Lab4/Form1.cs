@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using System.Drawing;
-
 using System.Windows.Forms;
-
+using System.Drawing.Drawing2D;
 namespace Lab4
 {
-    
+
 
     public partial class Form1 : Form
     {
@@ -73,16 +71,15 @@ namespace Lab4
             colorButton.Click += ChangeColorButton_Click;
             toolStrip1.Items.Add(colorButton);
 
-            ToolStripButton clearSelectionButton = new ToolStripButton("Снять выделение");  // Changed text here
-            clearSelectionButton.Click += ClearSelectionButton_Click;                         // Changed event here
+            ToolStripButton clearSelectionButton = new ToolStripButton("Снять выделение");
+            clearSelectionButton.Click += ClearSelectionButton_Click;
             toolStrip1.Items.Add(clearSelectionButton);
 
-            //  ToolStripButton deleteButton = new ToolStripButton("Удалить");
-            //   deleteButton.Click += DeleteButton_Click;
-            //   toolStrip1.Items.Add(deleteButton);
+            ToolStripButton resetButton = new ToolStripButton("Сброс");
+            resetButton.Click += ResetButton_Click;
+            toolStrip1.Items.Add(resetButton);
         }
-
-        private void ClearSelectionButton_Click(object sender, EventArgs e)  // New event handler
+        private void ClearSelectionButton_Click(object sender, EventArgs e)
         {
             ClearSelectedShapes();
             Invalidate();
@@ -95,33 +92,30 @@ namespace Lab4
                 _selectedShapeType = type;
             }
         }
-
-        // Обработчик события для кнопки "Удалить"
-        private void DeleteButton_Click(object sender, EventArgs e)
+        private void ResetButton_Click(object sender, EventArgs e)
         {
-            DeleteSelectedShapes();
-            Invalidate(); // Перерисовываем рабочую область
+            // Очищаем контейнер фигур и список выделенных
+            _shapeContainer.Clear(); // Используем публичный метод Clear()
+            ClearSelectedShapes();
+            Invalidate(); // Перерисовываем форму
         }
 
         private void ChangeColorButton_Click(object sender, EventArgs e)
         {
             if (_colorDialog.ShowDialog() == DialogResult.OK)
             {
-                // Получаем выбранный цвет
                 Color selectedColor = _colorDialog.Color;
 
-                // Изменяем цвет выбранных фигур
                 foreach (Shape shape in _shapeContainer.GetSelectedShapes())
                 {
                     shape.Color = selectedColor;
                 }
-                Invalidate(); // Перерисовываем рабочую область
+                Invalidate();
             }
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
@@ -132,8 +126,11 @@ namespace Lab4
             {
                 if (shape != null && shape.IsSelected)
                 {
-                    Pen selectionPen = new Pen(Color.Black, 2);
-                    
+                    using (Pen selectionPen = new Pen(Color.Black, 2))
+                    {
+                        e.Graphics.DrawPath(selectionPen, shape.GetPath());
+                    }
+
                 }
             }
         }
@@ -142,28 +139,19 @@ namespace Lab4
         {
             if (e.Button == MouseButtons.Left)
             {
-                Shape clickedShape = null; // Переменная для хранения фигуры, на которую щелкнули
+                Shape clickedShape = _shapeContainer.FindShape(e.Location);
 
-                // Проходим по всем фигурам в обратном порядке (чтобы найти самую верхнюю)
-                for (int i = _shapeContainer.Count - 1; i >= 0; i--)
+                if (!_ctrlKeyPressed)
                 {
-                    Shape shape = _shapeContainer.GetShapeAt(i); // Получаем текущую фигуру
-
-                    // Если фигура существует и точка щелчка находится внутри нее
-                    if (shape != null && shape.Contains(e.Location))
-                    {
-                        clickedShape = shape; // Запоминаем фигуру, на которую щелкнули
-                        break; // Выходим из цикла, так как нашли фигуру
-                    }
+                    ClearSelectedShapes();
                 }
 
-                // Если щелкнули по фигуре
-                if (clickedShape != null)
+                if (_ctrlKeyPressed)
                 {
-                    // Если клавиша Ctrl нажата
-                    if (_ctrlKeyPressed)
+
+                    if (clickedShape != null)
                     {
-                        // Если фигура уже выделена, снимаем выделение, иначе - выделяем
+                        // Toggle the selection state of the clicked shape
                         if (_selectedShapes.Contains(clickedShape))
                         {
                             _selectedShapes.Remove(clickedShape);
@@ -174,66 +162,63 @@ namespace Lab4
                             _selectedShapes.Add(clickedShape);
                             clickedShape.IsSelected = true;
                         }
-                    }
-                    // Если клавиша Ctrl не нажата
-                    else
-                    {
-                        // Очищаем список выделенных фигур и добавляем в него текущую фигуру
-                        ClearSelectedShapes();
-                        _selectedShapes.Add(clickedShape);
-                        clickedShape.IsSelected = true;
-                        _selectedShape = clickedShape;
-                    }
+                        _selectedShape = null;
+                        _isDragging = false;
 
-                    _selectedShape = clickedShape;
-                    _isDragging = true;
-                }
-                // Если щелкнули не по фигуре
-                else
-                {
-                    if (_ctrlKeyPressed)
-                    {
-                        // Do nothing if clicking on empty space while Ctrl is pressed
-                        // The user might be just adding/removing selection
-                        _isDragging = false; // Disable dragging if starting from empty space with Ctrl
                     }
                     else
                     {
-                        // Clear selection and create new shape if clicking on empty space without Ctrl
                         ClearSelectedShapes();
                         CreateShape(e.Location);
-                        Shape newShape = _shapeContainer.FindShape(e.Location); // Get only just added shape
+                        Shape newShape = _shapeContainer.FindShape(e.Location);
+                        newShape.IsSelected = true;
+                        _selectedShapes.Add(newShape);
                         _selectedShape = newShape;
-                        _selectedShapes.Add(_selectedShape);
-                        if (_selectedShape != null)
-                            _selectedShape.IsSelected = true;
                         _isDragging = true;
                     }
 
-
                 }
-                Invalidate(); // Перерисовываем
-            }
-            _mouseDownLocation = e.Location;
-        }
+                else
+                {
+                    if (clickedShape == null)
+                    {
+                        ClearSelectedShapes();
+                        CreateShape(e.Location);
+                        Shape newShape = _shapeContainer.FindShape(e.Location);
+                        newShape.IsSelected = true;
+                        _selectedShapes.Add(newShape);
+                        _selectedShape = newShape;
+                        _isDragging = true;
+                    }
+                    else
+                    {
+                        ClearSelectedShapes();
+                        clickedShape.IsSelected = true;
+                        _selectedShapes.Add(clickedShape);
+                        _selectedShape = clickedShape;
+                        _isDragging = true;
+                    }
+                }
 
+                Invalidate();
+                _mouseDownLocation = e.Location;
+
+            }
+        }
 
         private void Form1_MouseMove(object sender, MouseEventArgs e)
         {
-            //Перетаскивание только выделенных фигур
             if (_isDragging && _selectedShape != null)
             {
-                //Вычисляем смещение мыши
                 int dx = e.X - _mouseDownLocation.X;
                 int dy = e.Y - _mouseDownLocation.Y;
 
-                // Перебираем все выделенные объекты и двигаем их
                 foreach (Shape shape in _selectedShapes)
                 {
                     shape.Move(dx, dy, ClientRectangle);
                 }
 
-                _mouseDownLocation = e.Location;  // Обновляем координаты мыши
+                _mouseDownLocation = e.Location;
                 Invalidate();
             }
         }
@@ -242,7 +227,8 @@ namespace Lab4
         {
             if (e.Button == MouseButtons.Left)
             {
-                _isDragging = false;  // Прекращаем перетаскивание
+                _isDragging = false;
+                _selectedShape = null;
             }
         }
 
@@ -250,16 +236,15 @@ namespace Lab4
         {
             if (e.Control)
             {
-                _ctrlKeyPressed = true; // Устанавливаем флаг Ctrl
+                _ctrlKeyPressed = true;
             }
 
-            List<Shape> shapesToUpdate = _selectedShapes; // Get all selected shapes
+            List<Shape> shapesToUpdate = _selectedShapes;
 
-            if (shapesToUpdate.Count > 0) // Only execute if there are any selected shapes
+            if (shapesToUpdate.Count > 0)
             {
-                int moveStep = 5; // Шаг перемещения
-                int resizeStep = 5; // Шаг изменения размера
-
+                int moveStep = 5;
+                int resizeStep = 5;
 
                 switch (e.KeyCode)
                 {
@@ -279,22 +264,19 @@ namespace Lab4
                         foreach (var shape in shapesToUpdate)
                             shape.Move(moveStep, 0, ClientRectangle);
                         break;
-                    case Keys.Add: // Увеличение размера ( "+" )
+                    case Keys.Add:
                         foreach (var shape in shapesToUpdate)
                             shape.Resize(resizeStep, resizeStep, ClientRectangle);
                         break;
-                    case Keys.Subtract: // Уменьшение размера ( "-" )
+                    case Keys.Subtract:
                         foreach (var shape in shapesToUpdate)
                             shape.Resize(-resizeStep, -resizeStep, ClientRectangle);
                         break;
-                    case Keys.Delete: // Удаление выбранного объекта
-                        // Iterate through the selected shapes to delete each one
+                    case Keys.Delete:
                         DeleteSelectedShapes();
-
                         break;
                 }
-
-                Invalidate(); // Перерисовываем рабочую область после перемещения/изменения размера/удаления
+                Invalidate();
             }
         }
 
@@ -302,7 +284,7 @@ namespace Lab4
         {
             if (e.Control)
             {
-                _ctrlKeyPressed = false; // Сбрасываем флаг Ctrl
+                _ctrlKeyPressed = false;
             }
         }
 
@@ -312,14 +294,11 @@ namespace Lab4
 
         private void Form1_Resize(object sender, EventArgs e)
         {
-            // Перерисовываем все фигуры при изменении размеров формы
             Invalidate();
         }
 
-        // Метод для создания новой фигуры
         private void CreateShape(Point location)
         {
-
             switch (_selectedShapeType)
             {
                 case ShapeType.Circle:
@@ -335,20 +314,22 @@ namespace Lab4
                     _shapeContainer.AddShape(new Pentagon(Color.Purple, location, ShapeSize));
                     break;
                 case ShapeType.Line:
-                    _shapeContainer.AddShape(new Line(Color.Orange, location, new Point(location.X + ShapeSize, location.Y + ShapeSize)));
+                    // Для линии нужно указать начальную и конечную точку
+                    Point startPoint = location; // Начальная точка - точка клика
+                    Point endPoint = new Point(location.X + ShapeSize, location.Y + ShapeSize); // Конечная точка (пример)
+                    _shapeContainer.AddShape(new Line(Color.Orange, startPoint, endPoint));
                     break;
             }
             Invalidate();
         }
         private void DeleteSelectedShapes()
         {
-            // To avoid collection modification during iteration, iterate backwards
             for (int i = _selectedShapes.Count - 1; i >= 0; i--)
             {
                 Shape shape = _selectedShapes[i];
                 _shapeContainer.RemoveShape(shape);
                 shape.IsSelected = false;
-                _selectedShapes.RemoveAt(i);  // Remove from selection list
+                _selectedShapes.RemoveAt(i);
 
             }
             ClearSelectedShapes();
@@ -392,6 +373,7 @@ namespace Lab4
         // Метод для проверки попадания точки в фигуру (должен быть переопределен)
         public abstract bool Contains(Point point);
 
+        public abstract GraphicsPath GetPath();
         // Метод для перемещения фигуры
         public virtual void Move(int dx, int dy, Rectangle clientRectangle)
         {
@@ -455,7 +437,12 @@ namespace Lab4
         {
             Radius = radius;
         }
-
+        public override GraphicsPath GetPath()
+        {
+            GraphicsPath path = new GraphicsPath();
+            path.AddEllipse(Location.X, Location.Y, 2 * Radius, 2 * Radius);
+            return path;
+        }
         public override void Draw(Graphics g)
         {
             Brush brush = new SolidBrush(Color);
@@ -507,7 +494,12 @@ namespace Lab4
             Width = width;
             Height = height;
         }
-
+        public override GraphicsPath GetPath()
+        {
+            GraphicsPath path = new GraphicsPath();
+            path.AddRectangle(new Rectangle(Location.X, Location.Y, Width, Height));
+            return path;
+        }
         public override void Draw(Graphics g)
         {
             Brush brush = new SolidBrush(Color);
@@ -558,6 +550,12 @@ namespace Lab4
             Height = height;
         }
 
+        public override GraphicsPath GetPath()
+        {
+            GraphicsPath path = new GraphicsPath();
+            path.AddEllipse(Location.X, Location.Y, Width, Height);
+            return path;
+        }
         public override void Draw(Graphics g)
         {
             Brush brush = new SolidBrush(Color);
@@ -606,7 +604,23 @@ namespace Lab4
         {
             Size = size;
         }
+        public override GraphicsPath GetPath()
+        {
+            GraphicsPath path = new GraphicsPath();
+            Point[] points = new Point[5];
+            double angle = 2 * Math.PI / 5; // Угол между вершинами
 
+            for (int i = 0; i < 5; i++)
+            {
+                double angleOffset = angle * i - Math.PI / 2;
+                points[i] = new Point(
+                    Location.X + (int)(Size / 2 * Math.Cos(angleOffset)),
+                    Location.Y + (int)(Size / 2 * Math.Sin(angleOffset))
+                );
+            }
+            path.AddPolygon(points);
+            return path;
+        }
         public override void Draw(Graphics g)
         {
             // Рассчитываем координаты вершин пятиугольника
@@ -631,26 +645,25 @@ namespace Lab4
 
         public override bool Contains(Point point)
         {
-            // Алгоритм "Ray Casting" для определения, находится ли точка внутри многоугольника
-            int i, j;
-            bool inside = false;
+            // Алгоритм "Ray Casting" для определения попадания точки внутрь многоугольника
+            double angle = 2 * Math.PI / 5; // Угол между вершинами
+
             Point[] points = new Point[5];
-            for (int k = 0; k < 5; k++)
+            for (int i = 0; i < 5; i++)
             {
-                double angle = 2 * Math.PI * k / 5 - Math.PI / 2; // Сдвиг для ориентации вершины вверх
-                int x = Location.X + (int)(Size / 2 * Math.Cos(angle));
-                int y = Location.Y + (int)(Size / 2 * Math.Sin(angle));
-                points[k] = new Point(x, y);
+                double angleOffset = angle * i - Math.PI / 2;
+                points[i] = new Point(
+                    Location.X + (int)(Size / 2 * Math.Cos(angleOffset)),
+                    Location.Y + (int)(Size / 2 * Math.Sin(angleOffset))
+                );
             }
-            for (i = 0, j = 4; i < 5; j = i++)
+
+            // Используем метод Contains из GraphicsPath для определения, находится ли точка внутри пятиугольника
+            using (System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath())
             {
-                if (((points[i].Y > point.Y) != (points[j].Y > point.Y)) &&
-                    (point.X < (points[j].X - points[i].X) * (point.Y - points[i].Y) / (points[j].Y - points[i].Y) + points[i].X))
-                {
-                    inside = !inside;
-                }
+                path.AddPolygon(points);
+                return path.IsVisible(point);
             }
-            return inside;
         }
 
         public override void Resize(int deltaWidth, int deltaHeight, Rectangle clientRectangle)
@@ -708,15 +721,21 @@ namespace Lab4
     {
         public Point EndPoint { get; set; }
 
-        public Line(Color color, Point location, Point endPoint) : base(color, location)
+        public Line(Color color, Point startPoint, Point endPoint) : base(color, startPoint)
         {
             EndPoint = endPoint;
         }
-
+        public override GraphicsPath GetPath()
+        {
+            GraphicsPath path = new GraphicsPath();
+            path.AddLine(Location, EndPoint);
+            return path;
+        }
         public override void Draw(Graphics g)
         {
-            Pen pen = new Pen(Color, 2); // Толщина линии
+            Pen pen = new Pen(Color, 2);
             g.DrawLine(pen, Location, EndPoint);
+
             if (IsSelected)
             {
                 Pen selectionPen = new Pen(Color.Black, 2);
@@ -726,12 +745,11 @@ namespace Lab4
 
         public override bool Contains(Point point)
         {
-            // Простая проверка попадания в область вокруг линии (можно улучшить)
+            // Упрощенная проверка на попадание в окрестность линии
             double distance = DistancePointToLine(point, Location, EndPoint);
             return distance <= 3; // Допустимая погрешность
         }
 
-        // Расчет расстояния от точки до линии
         private double DistancePointToLine(Point point, Point lineStart, Point lineEnd)
         {
             double x0 = point.X;
@@ -748,16 +766,46 @@ namespace Lab4
 
         public override void Resize(int deltaWidth, int deltaHeight, Rectangle clientRectangle)
         {
-            // Изменение размеров линии через изменение конечной точки.
-            int newX = EndPoint.X + deltaWidth;
-            int newY = EndPoint.Y + deltaHeight;
+            // Сохраняем текущую длину линии
+            double currentLength = Math.Sqrt(Math.Pow(EndPoint.X - Location.X, 2) + Math.Pow(EndPoint.Y - Location.Y, 2));
 
-            // Проверка на выход за границы
-            if (newX >= 0 && newX <= clientRectangle.Width && newY >= 0 && newY <= clientRectangle.Height)
+            // Вычисляем новый размер
+            double newLength = currentLength + deltaWidth;
+
+            if (newLength > 0)
             {
-                EndPoint = new Point(newX, newY);
+                // Вычисляем угол наклона линии
+                double angle = Math.Atan2(EndPoint.Y - Location.Y, EndPoint.X - Location.X);
+
+                // Вычисляем новую конечную точку на основе этого угла и нового размера
+                int newX = Location.X + (int)(newLength * Math.Cos(angle));
+                int newY = Location.Y + (int)(newLength * Math.Sin(angle));
+
+                // Проверяем, чтобы новые координаты не выходили за границы
+                if (newX >= 0 && newX <= clientRectangle.Width && newY >= 0 && newY <= clientRectangle.Height)
+                {
+                    EndPoint = new Point(newX, newY);
+                }
             }
         }
+
+
+        public override void Move(int dx, int dy, Rectangle clientRectangle)
+        {
+            // Move both start and end points
+            Point newStart = new Point(Location.X + dx, Location.Y + dy);
+            Point newEnd = new Point(EndPoint.X + dx, EndPoint.Y + dy);
+
+            // Make sure the new positions are within bounds before moving
+            Rectangle bounds = new Rectangle(Math.Min(newStart.X, newEnd.X), Math.Min(newStart.Y, newEnd.Y), Math.Abs(newStart.X - newEnd.X), Math.Abs(newStart.Y - newEnd.Y));
+            if (clientRectangle.Contains(bounds))
+            {
+                Location = newStart;
+                EndPoint = newEnd;
+            }
+        }
+
+
 
         public override Rectangle GetBounds()
         {
@@ -767,21 +815,6 @@ namespace Lab4
             int maxX = Math.Max(Location.X, EndPoint.X);
             int maxY = Math.Max(Location.Y, EndPoint.Y);
             return new Rectangle(minX, minY, maxX - minX, maxY - minY);
-        }
-
-        public override void Move(int dx, int dy, Rectangle clientRectangle)
-        {
-            // Проверяем, чтобы вся линия не вышла за границы
-            Point newStart = new Point(Location.X + dx, Location.Y + dy);
-            Point newEnd = new Point(EndPoint.X + dx, EndPoint.Y + dy);
-
-            Rectangle bounds = new Rectangle(Math.Min(newStart.X, newEnd.X), Math.Min(newStart.Y, newEnd.Y),
-                                                Math.Abs(newStart.X - newEnd.X), Math.Abs(newStart.Y - newEnd.Y));
-            if (clientRectangle.Contains(bounds))
-            {
-                Location = newStart;
-                EndPoint = newEnd;
-            }
         }
     }
 
@@ -887,6 +920,12 @@ namespace Lab4
             {
                 RemoveShape(shape);
             }
+        }
+
+        // Добавляем новый метод для очистки контейнера
+        public void Clear()
+        {
+            _shapes.Clear();
         }
     }
 }
