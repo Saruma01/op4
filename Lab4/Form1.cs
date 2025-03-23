@@ -15,7 +15,7 @@ namespace Lab4
         private bool _isDragging; // Флаг, указывающий на процесс перетаскивания
         private ShapeType _selectedShapeType = ShapeType.Circle; // Тип фигуры, выбранный в панели инструментов
         private readonly ColorDialog _colorDialog = new ColorDialog();
-        private const int ShapeSize = 50;  // Default size for new shapes
+        private const int ShapeSize = 50;  // Размер по умолчанию для новых фигур
         private bool _ctrlKeyPressed = false; // Флаг для состояния клавиши Ctrl
         private List<Shape> _selectedShapes = new List<Shape>(); // Список выделенных фигур
 
@@ -38,58 +38,60 @@ namespace Lab4
             this.KeyDown += Form1_KeyDown; // Подписываемся на события KeyDown и KeyUp
             this.KeyUp += Form1_KeyUp;
         }
-        private void AddShapeTypeButtons()
+         private void AddShapeTypeButtons()
         {
             ToolStripButton circleButton = new ToolStripButton("Круг");
-            circleButton.Tag = ShapeType.Circle;
-            circleButton.Click += ShapeTypeButton_Click;
-            toolStrip1.Items.Add(circleButton);
+            circleButton.Tag = ShapeType.Circle; // Связываем кнопку с типом фигуры
+            circleButton.Click += ShapeTypeButton_Click; // Подписываем на событие Click
+            toolStrip1.Items.Add(circleButton); // Добавляем на панель инструментов
 
             ToolStripButton rectangleButton = new ToolStripButton("Прямоугольник");
-            rectangleButton.Tag = ShapeType.Rectangle;
-            rectangleButton.Click += ShapeTypeButton_Click;
-            toolStrip1.Items.Add(rectangleButton);
+            rectangleButton.Tag = ShapeType.Rectangle; // Связываем кнопку с типом фигуры
+            rectangleButton.Click += ShapeTypeButton_Click; // Подписываем на событие Click
+            toolStrip1.Items.Add(rectangleButton); // Добавляем на панель инструментов
 
             ToolStripButton ellipseButton = new ToolStripButton("Эллипс");
-            ellipseButton.Tag = ShapeType.Ellipse;
-            ellipseButton.Click += ShapeTypeButton_Click;
-            toolStrip1.Items.Add(ellipseButton);
+            ellipseButton.Tag = ShapeType.Ellipse; // Связываем кнопку с типом фигуры
+            ellipseButton.Click += ShapeTypeButton_Click; // Подписываем на событие Click
+            toolStrip1.Items.Add(ellipseButton); // Добавляем на панель инструментов
 
             ToolStripButton pentagonButton = new ToolStripButton("Пятиугольник");
-            pentagonButton.Tag = ShapeType.Pentagon;
-            pentagonButton.Click += ShapeTypeButton_Click;
-            toolStrip1.Items.Add(pentagonButton);
+            pentagonButton.Tag = ShapeType.Pentagon; // Связываем кнопку с типом фигуры
+            pentagonButton.Click += ShapeTypeButton_Click; // Подписываем на событие Click
+            toolStrip1.Items.Add(pentagonButton); // Добавляем на панель инструментов
 
             ToolStripButton lineButton = new ToolStripButton("Линия");
-            lineButton.Tag = ShapeType.Line;
-            lineButton.Click += ShapeTypeButton_Click;
-            toolStrip1.Items.Add(lineButton);
+            lineButton.Tag = ShapeType.Line; // Связываем кнопку с типом фигуры
+            lineButton.Click += ShapeTypeButton_Click; // Подписываем на событие Click
+            toolStrip1.Items.Add(lineButton); // Добавляем на панель инструментов
 
-            toolStrip1.Items.Add(new ToolStripSeparator());
+            toolStrip1.Items.Add(new ToolStripSeparator()); // Добавляем разделитель
 
             ToolStripButton colorButton = new ToolStripButton("Цвет");
-            colorButton.Click += ChangeColorButton_Click;
-            toolStrip1.Items.Add(colorButton);
+            colorButton.Click += ChangeColorButton_Click; // Подписываем на событие Click
+            toolStrip1.Items.Add(colorButton); // Добавляем на панель инструментов
 
             ToolStripButton clearSelectionButton = new ToolStripButton("Снять выделение");
-            clearSelectionButton.Click += ClearSelectionButton_Click;
-            toolStrip1.Items.Add(clearSelectionButton);
+            clearSelectionButton.Click += ClearSelectionButton_Click; // Подписываем на событие Click
+            toolStrip1.Items.Add(clearSelectionButton); // Добавляем на панель инструментов
 
             ToolStripButton resetButton = new ToolStripButton("Сброс");
-            resetButton.Click += ResetButton_Click;
-            toolStrip1.Items.Add(resetButton);
+            resetButton.Click += ResetButton_Click; // Подписываем на событие Click
+            toolStrip1.Items.Add(resetButton); // Добавляем на панель инструментов
         }
+        // Обработчик события нажатия кнопки "Снять выделение"
         private void ClearSelectionButton_Click(object sender, EventArgs e)
         {
-            ClearSelectedShapes();
-            Invalidate();
+            ClearSelectedShapes(); // Снимаем выделение со всех фигур
+            Invalidate(); // Перерисовываем форму
         }
 
+        // Обработчик события нажатия кнопки типа фигуры (Круг, Прямоугольник и т.д.)
         private void ShapeTypeButton_Click(object sender, EventArgs e)
         {
             if (sender is ToolStripButton button && button.Tag is ShapeType type)
             {
-                _selectedShapeType = type;
+                _selectedShapeType = type; // Устанавливаем выбранный тип фигуры
             }
         }
         private void ResetButton_Click(object sender, EventArgs e)
@@ -100,17 +102,18 @@ namespace Lab4
             Invalidate(); // Перерисовываем форму
         }
 
+        // Обработчик события нажатия кнопки "Цвет"
         private void ChangeColorButton_Click(object sender, EventArgs e)
         {
-            if (_colorDialog.ShowDialog() == DialogResult.OK)
+            if (_colorDialog.ShowDialog() == DialogResult.OK) // Открываем диалог выбора цвета
             {
-                Color selectedColor = _colorDialog.Color;
+                Color selectedColor = _colorDialog.Color; // Получаем выбранный цвет
 
-                foreach (Shape shape in _shapeContainer.GetSelectedShapes())
+                foreach (Shape shape in _shapeContainer.GetSelectedShapes()) // Для каждой выделенной фигуры
                 {
-                    shape.Color = selectedColor;
+                    shape.Color = selectedColor; // Устанавливаем выбранный цвет
                 }
-                Invalidate();
+                Invalidate(); // Перерисовываем форму
             }
         }
 
@@ -120,106 +123,91 @@ namespace Lab4
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-            _shapeContainer.DrawAllShapes(e.Graphics);
+            _shapeContainer.DrawAllShapes(e.Graphics); // Рисуем все фигуры из контейнера
+
             // Отображаем рамку для выделенных фигур
             foreach (Shape shape in _selectedShapes)
             {
-                if (shape != null && shape.IsSelected)
+                if (shape != null && shape.IsSelected) // Если фигура существует и выделена
                 {
-                    using (Pen selectionPen = new Pen(Color.Black, 2))
+                    using (Pen selectionPen = new Pen(Color.Black, 2)) // Создаем перо для отрисовки рамки выделения
                     {
-                        e.Graphics.DrawPath(selectionPen, shape.GetPath());
+                        e.Graphics.DrawPath(selectionPen, shape.GetPath()); // Рисуем рамку по контуру фигуры
                     }
-
                 }
             }
         }
 
+        // Обработчик события нажатия кнопки мыши на форме
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left)
+            if (e.Button == MouseButtons.Left) // Если нажата левая кнопка мыши
             {
-                Shape clickedShape = _shapeContainer.FindShape(e.Location);
+                Shape clickedShape = _shapeContainer.FindShape(e.Location); // Ищем фигуру под курсором
 
-                if (!_ctrlKeyPressed)
+                if (!_ctrlKeyPressed) // Если не нажата клавиша Ctrl
                 {
-                    ClearSelectedShapes();
+                    ClearSelectedShapes(); // Снимаем выделение со всех предыдущих фигур
                 }
 
-                if (_ctrlKeyPressed)
+                if (_ctrlKeyPressed) // Если нажата клавиша Ctrl
                 {
-
-                    if (clickedShape != null)
+                    if (clickedShape != null) // Если кликнули на фигуру
                     {
-                        // Toggle the selection state of the clicked shape
+                        // Переключаем состояние выделения фигуры (если выделена - снимаем, если нет - выделяем)
                         if (_selectedShapes.Contains(clickedShape))
                         {
-                            _selectedShapes.Remove(clickedShape);
-                            clickedShape.IsSelected = false;
+                            _selectedShapes.Remove(clickedShape); // Удаляем из списка выделенных
+                            clickedShape.IsSelected = false; // Снимаем выделение
                         }
                         else
                         {
-                            _selectedShapes.Add(clickedShape);
-                            clickedShape.IsSelected = true;
+                            _selectedShapes.Add(clickedShape); // Добавляем в список выделенных
+                            clickedShape.IsSelected = true; // Выделяем
                         }
-                        _selectedShape = null;
-                        _isDragging = false;
-
+                        _selectedShape = null; // Сбрасываем выбранную фигуру
+                        _isDragging = false; // Прекращаем перетаскивание
                     }
-                    else
-                    {
-                        ClearSelectedShapes();
-                        CreateShape(e.Location);
-                        Shape newShape = _shapeContainer.FindShape(e.Location);
-                        newShape.IsSelected = true;
-                        _selectedShapes.Add(newShape);
-                        _selectedShape = newShape;
-                        _isDragging = true;
-                    }
-
+                    // Если кликнули не на фигуру, то ничего не делаем (оставляем текущее выделение)
                 }
-                else
+                else // Если клавиша Ctrl не нажата
                 {
-                    if (clickedShape == null)
+                    if (clickedShape != null) // Если кликнули на фигуру
                     {
-                        ClearSelectedShapes();
-                        CreateShape(e.Location);
-                        Shape newShape = _shapeContainer.FindShape(e.Location);
-                        newShape.IsSelected = true;
-                        _selectedShapes.Add(newShape);
-                        _selectedShape = newShape;
-                        _isDragging = true;
+                        // Выделяем только эту фигуру и начинаем перетаскивание
+                        ClearSelectedShapes(); //Очищаем список выделеных объектов
+                        _selectedShape = clickedShape; //Запоминаем выбранную фигуру
+                        _selectedShapes.Add(_selectedShape); //Добавим в список
+                        _selectedShape.IsSelected = true; //Устанавливаем значение True
+
+                        _isDragging = true; //Разрешаем перетаскивание
                     }
-                    else
+                    else // Если кликнули на пустое место
                     {
-                        ClearSelectedShapes();
-                        clickedShape.IsSelected = true;
-                        _selectedShapes.Add(clickedShape);
-                        _selectedShape = clickedShape;
-                        _isDragging = true;
+                        // Создаем новую фигуру
+                        CreateShape(e.Location); // Создаем новую фигуру
                     }
                 }
 
-                Invalidate();
-                _mouseDownLocation = e.Location;
-
+                Invalidate(); // Перерисовываем форму
+                _mouseDownLocation = e.Location; // Запоминаем координаты мыши
             }
         }
 
+
         private void Form1_MouseMove(object sender, MouseEventArgs e)
         {
-            if (_isDragging && _selectedShape != null)
+            if (_isDragging && _selectedShape != null) // Если разрешено перетаскивание и фигура выбрана
             {
-                int dx = e.X - _mouseDownLocation.X;
-                int dy = e.Y - _mouseDownLocation.Y;
+                int dx = e.X - _mouseDownLocation.X; // Вычисляем смещение по X
+                int dy = e.Y - _mouseDownLocation.Y; // Вычисляем смещение по Y
 
                 foreach (Shape shape in _selectedShapes)
                 {
-                    shape.Move(dx, dy, ClientRectangle);
+                    shape.Move(dx, dy, ClientRectangle);  // Двигаем все выделенные объекты
                 }
-
-                _mouseDownLocation = e.Location;
-                Invalidate();
+                _mouseDownLocation = e.Location; // Обновляем координаты мыши
+                Invalidate(); // Перерисовываем форму
             }
         }
 
@@ -228,7 +216,7 @@ namespace Lab4
             if (e.Button == MouseButtons.Left)
             {
                 _isDragging = false;
-                _selectedShape = null;
+                _selectedShape = null;  
             }
         }
 
@@ -264,11 +252,11 @@ namespace Lab4
                         foreach (var shape in shapesToUpdate)
                             shape.Move(moveStep, 0, ClientRectangle);
                         break;
-                    case Keys.Add:
+                    case Keys.Add: // Клавиша "+"
                         foreach (var shape in shapesToUpdate)
                             shape.Resize(resizeStep, resizeStep, ClientRectangle);
                         break;
-                    case Keys.Subtract:
+                    case Keys.Subtract: // Клавиша "-"
                         foreach (var shape in shapesToUpdate)
                             shape.Resize(-resizeStep, -resizeStep, ClientRectangle);
                         break;
@@ -381,14 +369,15 @@ namespace Lab4
             Point newLocation = new Point(Location.X + dx, Location.Y + dy);
             Rectangle newBounds = new Rectangle(newLocation.X, newLocation.Y, bounds.Width, bounds.Height);
 
-            // Check if the new bounds are fully within the client rectangle
+
+            // Проверьте, полностью ли новые границы находятся в пределах клиентского прямоугольника
             if (clientRectangle.Contains(newBounds))
             {
-                Location = newLocation; // Apply the move if within bounds
+                Location = newLocation; // Примените перемещение, если оно находится в пределах допустимого
             }
             else
             {
-                // Calculate the maximum allowed movement to stay within bounds
+                // Рассчитайте максимально допустимое перемещение, чтобы оставаться в пределах допустимого
                 int allowedDx = 0, allowedDy = 0;
 
                 if (newBounds.Left < clientRectangle.Left)
@@ -396,23 +385,23 @@ namespace Lab4
                 else if (newBounds.Right > clientRectangle.Right)
                     allowedDx = clientRectangle.Right - bounds.Right;
                 else
-                    allowedDx = dx; // Full move allowed in X direction
+                    allowedDx = dx; // Разрешено полное перемещение в направлении X
 
                 if (newBounds.Top < clientRectangle.Top)
                     allowedDy = clientRectangle.Top - bounds.Top;
                 else if (newBounds.Bottom > clientRectangle.Bottom)
                     allowedDy = clientRectangle.Bottom - bounds.Bottom;
                 else
-                    allowedDy = dy; // Full move allowed in Y direction
+                    allowedDy = dy; // Разрешено полное перемещение в направлении Y
 
-                // Only apply the partial move if there is a valid change
+                // Применяйте частичное перемещение только в том случае, если есть действительное изменение
                 if (allowedDx != 0 || allowedDy != 0)
                 {
-                    // Create the new bounds based on partial move
+                    // Создайте новые границы на основе частичного перемещения
                     Point partialLocation = new Point(Location.X + allowedDx, Location.Y + allowedDy);
                     Rectangle partialBounds = new Rectangle(partialLocation.X, partialLocation.Y, bounds.Width, bounds.Height);
 
-                    // Make sure the partial movement still results in the shape within the client rectangle
+                    // Убедитесь, что частичное перемещение по-прежнему приводит к появлению фигуры внутри клиентского прямоугольника
                     if (clientRectangle.Contains(partialBounds))
                     {
                         Location = partialLocation;
@@ -668,10 +657,10 @@ namespace Lab4
 
         public override void Resize(int deltaWidth, int deltaHeight, Rectangle clientRectangle)
         {
-            int newSize = Size + deltaWidth; // Assuming uniform scaling
+            int newSize = Size + deltaWidth; 
             if (newSize > 0)
             {
-                // Calculate the bounding box for the new size.
+               
                 int minX = int.MaxValue, minY = int.MaxValue, maxX = int.MinValue, maxY = int.MinValue;
                 Point[] points = new Point[5];
                 for (int i = 0; i < 5; i++)
@@ -687,7 +676,7 @@ namespace Lab4
                     maxY = Math.Max(maxY, y);
                 }
 
-                // Check if the new bounding box fits within the client rectangle
+                
                 if (minX >= clientRectangle.Left && minY >= clientRectangle.Top && maxX <= clientRectangle.Right && maxY <= clientRectangle.Bottom)
                 {
                     Size = newSize;
@@ -792,11 +781,11 @@ namespace Lab4
 
         public override void Move(int dx, int dy, Rectangle clientRectangle)
         {
-            // Move both start and end points
+            
             Point newStart = new Point(Location.X + dx, Location.Y + dy);
             Point newEnd = new Point(EndPoint.X + dx, EndPoint.Y + dy);
 
-            // Make sure the new positions are within bounds before moving
+            
             Rectangle bounds = new Rectangle(Math.Min(newStart.X, newEnd.X), Math.Min(newStart.Y, newEnd.Y), Math.Abs(newStart.X - newEnd.X), Math.Abs(newStart.Y - newEnd.Y));
             if (clientRectangle.Contains(bounds))
             {
